@@ -1,0 +1,11 @@
+node_modules/
+dist/
+coverage/
+.reference/
+.test-evidence/
+docs/test-results/
+.agents/
+.codex/
+*.vsix
+*.log
+.DS_Store

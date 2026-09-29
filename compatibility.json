@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "minimumSupportedVersion": "1.99.0",
+  "sourceVerifiedThroughVersion": "1.133.0-main",
+  "sourceVerifiedVscodeCommit": "78a7b6c291b5ac8d85fa32cfa3feacb649057b84",
+  "customUiStyleVersion": "0.7.1",
+  "customUiStyleCommit": "217c5167802e864005ca2d32e1cb9cf1b85713c6",
+  "visuallyTestedVersions": ["1.132.0"],
+  "criticalSelectors": [
+    ".window-controls-container",
+    ".window-icon",
+    ".window-minimize",
+    ".window-max-restore",
+    ".window-close"
+  ]
+}

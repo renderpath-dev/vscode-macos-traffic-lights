@@ -1,0 +1,293 @@
+/*
+ * macOS Traffic Lights compatibility contract
+ * ------------------------------------------------------------
+ * Target: Microsoft VS Code Desktop on Windows, VS Code >= 1.99.
+ * Requires: window.titleBarStyle=custom and window.controlsStyle=custom.
+ * Verified upstream concepts are recorded in compatibility.json and checked by
+ * scripts/verify-upstream.mjs. These workbench classes are internal VS Code
+ * implementation details, not a supported theming API.
+ *
+ * This stylesheet only changes titlebar layout and presentation. The existing
+ * .window-icon elements and VS Code's native-host event handlers remain intact.
+ */
+
+.monaco-workbench.windows {
+  --mtl-size: 12px;
+  --mtl-gap: 8px;
+  --mtl-left: 12px;
+  --mtl-hit-width: calc(var(--mtl-size) + var(--mtl-gap));
+  --mtl-controls-width: calc(
+    var(--mtl-hit-width) + var(--mtl-hit-width) + var(--mtl-hit-width)
+  );
+  --mtl-container-left: calc(var(--mtl-left) - (var(--mtl-gap) / 2));
+  --mtl-reserved-width: calc(
+    var(--mtl-left) + var(--mtl-controls-width) + var(--mtl-gap)
+  );
+  --mtl-close-color: #ff605a;
+  --mtl-close-border: #e14842;
+  --mtl-minimize-color: #ffbd31;
+  --mtl-minimize-border: #dfa020;
+  --mtl-maximize-color: #2acb42;
+  --mtl-maximize-border: #1eaa33;
+  --mtl-inactive-color: #a6a6a6;
+  --mtl-inactive-border: #8c8c8c;
+  --mtl-symbol-color: rgb(28 28 28 / 68%);
+  --mtl-transition-duration: 110ms;
+}
+
+/* Reserve the left edge without reversing VS Code's titlebar flex regions. */
+.monaco-workbench.windows
+  .part.titlebar
+  > .titlebar-container:has(.window-controls-container)
+  > .titlebar-left {
+  box-sizing: border-box;
+  padding-left: var(--mtl-reserved-width);
+}
+
+/* The container stays in VS Code's DOM but is independently anchored left. */
+.monaco-workbench.windows .part.titlebar .window-controls-container {
+  position: absolute;
+  top: 0;
+  left: var(--mtl-container-left);
+  width: var(--mtl-controls-width);
+  height: 100%;
+  direction: ltr;
+  flex: none;
+  z-index: 3000;
+  -webkit-app-region: no-drag;
+}
+
+/* Preserve VS Code's counter-zoom mechanics for titlebars at non-zero zoom. */
+.monaco-workbench.windows
+  .part.titlebar
+  > .titlebar-container:not(.counter-zoom)
+  .window-controls-container {
+  left: calc(var(--mtl-container-left) / var(--zoom-factor, 1));
+  width: calc(var(--mtl-controls-width) / var(--zoom-factor, 1));
+}
+
+/* Upstream's counter-zoom width rule loads after external CSS and is highly
+ * specific, so this state contract must be even more specific. */
+.monaco-workbench.windows:not(.web):not(.mac)
+  .part.titlebar
+  > .titlebar-container.counter-zoom
+  .window-controls-container {
+  left: var(--mtl-container-left);
+  width: var(--mtl-controls-width);
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  > .titlebar-container:not(.counter-zoom):has(.window-controls-container)
+  > .titlebar-left {
+  padding-left: calc(var(--mtl-reserved-width) / var(--zoom-factor, 1));
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-icon {
+  position: relative;
+  width: var(--mtl-hit-width);
+  min-width: var(--mtl-hit-width);
+  height: 100%;
+  padding: 0;
+  color: var(--mtl-symbol-color);
+  font-size: 0;
+  cursor: default;
+  background: transparent !important;
+  -webkit-app-region: no-drag;
+}
+
+/* DOM order is minimize, maximize/restore, close; visual order is macOS-like. */
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-close {
+  order: 1;
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-minimize {
+  order: 2;
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-max-restore {
+  order: 3;
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-icon.window-close:hover {
+  color: var(--mtl-symbol-color);
+}
+
+/* Replace the visual codicon only; the interactive element is unchanged. */
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-icon::before {
+  content: "" !important;
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  width: var(--mtl-size);
+  height: var(--mtl-size);
+  margin: auto;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  line-height: normal;
+  transition:
+    background-color var(--mtl-transition-duration) ease,
+    border-color var(--mtl-transition-duration) ease;
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-close::before {
+  background-color: var(--mtl-close-color);
+  border-color: var(--mtl-close-border);
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-minimize::before {
+  background-color: var(--mtl-minimize-color);
+  border-color: var(--mtl-minimize-border);
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-max-restore::before {
+  background-color: var(--mtl-maximize-color);
+  border-color: var(--mtl-maximize-border);
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-icon::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  margin: auto;
+  opacity: 0;
+  transition: opacity var(--mtl-transition-duration) ease;
+}
+
+/* Two crossing CSS gradients form the close glyph. */
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-close::after {
+  width: 6px;
+  height: 6px;
+  background:
+    linear-gradient(
+      45deg,
+      transparent 41%,
+      currentcolor 41% 59%,
+      transparent 59%
+    ),
+    linear-gradient(
+      -45deg,
+      transparent 41%,
+      currentcolor 41% 59%,
+      transparent 59%
+    );
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-minimize::after {
+  width: 6px;
+  height: 1px;
+  border-radius: 1px;
+  background: currentcolor;
+}
+
+/* VS Code swaps these state classes when native maximize state changes. */
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-max-restore.codicon-chrome-maximize::after {
+  width: 6px;
+  height: 6px;
+  border: 1px solid currentcolor;
+  border-radius: 1px;
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container
+  > .window-max-restore.codicon-chrome-restore::after {
+  width: 7px;
+  height: 7px;
+  background:
+    linear-gradient(currentcolor, currentcolor) 2px 0 / 5px 1px no-repeat,
+    linear-gradient(currentcolor, currentcolor) 6px 0 / 1px 5px no-repeat,
+    linear-gradient(currentcolor, currentcolor) 2px 0 / 1px 2px no-repeat,
+    linear-gradient(currentcolor, currentcolor) 0 2px / 5px 1px no-repeat,
+    linear-gradient(currentcolor, currentcolor) 0 2px / 1px 5px no-repeat,
+    linear-gradient(currentcolor, currentcolor) 0 6px / 5px 1px no-repeat,
+    linear-gradient(currentcolor, currentcolor) 4px 2px / 1px 5px no-repeat;
+}
+
+.monaco-workbench.windows
+  .part.titlebar
+  .window-controls-container:hover
+  > .window-icon::after {
+  opacity: 1;
+}
+
+/* VS Code fades the inactive titlebar ancestor; these colors anticipate it. */
+.monaco-workbench.windows
+  .part.titlebar.inactive
+  .window-controls-container
+  > .window-icon::before {
+  background-color: var(--mtl-inactive-color);
+  border-color: var(--mtl-inactive-border);
+}
+
+.monaco-workbench.windows
+  .part.titlebar.inactive
+  .window-controls-container
+  > .window-icon {
+  color: rgb(24 24 24 / 82%);
+}
+
+/* Add theme-provided contrast without changing the three semantic colors. */
+.monaco-workbench.windows.hc-black
+  .part.titlebar
+  .window-controls-container
+  > .window-icon::before,
+.monaco-workbench.windows.hc-light
+  .part.titlebar
+  .window-controls-container
+  > .window-icon::before {
+  outline: 1px solid var(--vscode-contrastBorder);
+  outline-offset: 1px;
+}
+
+/* Do not override VS Code's fullscreen suppression with the flex rule above. */
+.monaco-workbench.windows.fullscreen .part.titlebar .window-controls-container {
+  display: none !important;
+}
+
+.monaco-workbench.windows.fullscreen
+  .part.titlebar
+  > .titlebar-container:has(.window-controls-container)
+  > .titlebar-left {
+  padding-left: 0;
+}

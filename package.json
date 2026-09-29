@@ -1,0 +1,96 @@
+{
+  "name": "vscode-macos-traffic-lights",
+  "displayName": "macOS Traffic Lights",
+  "description": "Reversible macOS-style traffic-light window controls for Microsoft VS Code on Windows.",
+  "version": "0.1.0",
+  "publisher": "renderpath-dev",
+  "license": "MIT",
+  "icon": "assets/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/renderpath-dev/vscode-macos-traffic-lights.git"
+  },
+  "homepage": "https://github.com/renderpath-dev/vscode-macos-traffic-lights#readme",
+  "bugs": {
+    "url": "https://github.com/renderpath-dev/vscode-macos-traffic-lights/issues"
+  },
+  "engines": {
+    "vscode": "^1.99.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "macos",
+    "titlebar",
+    "traffic lights",
+    "windows"
+  ],
+  "main": "./dist/extension.js",
+  "extensionKind": [
+    "ui"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:macosTrafficLights.enable",
+    "onCommand:macosTrafficLights.disable",
+    "onCommand:macosTrafficLights.reapply",
+    "onCommand:macosTrafficLights.diagnose"
+  ],
+  "extensionPack": [
+    "subframe7536.custom-ui-style"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "macosTrafficLights.enable",
+        "title": "Enable",
+        "category": "macOS Traffic Lights"
+      },
+      {
+        "command": "macosTrafficLights.disable",
+        "title": "Disable",
+        "category": "macOS Traffic Lights"
+      },
+      {
+        "command": "macosTrafficLights.reapply",
+        "title": "Reapply",
+        "category": "macOS Traffic Lights"
+      },
+      {
+        "command": "macosTrafficLights.diagnose",
+        "title": "Diagnose",
+        "category": "macOS Traffic Lights"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "esbuild src/extension.ts --bundle --platform=node --format=cjs --target=node20 --external:vscode --outfile=dist/extension.js --log-level=warning",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm test && npm run build",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint src test",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "package": "npm run build && vsce package --no-dependencies --out dist/vscode-macos-traffic-lights.vsix",
+    "verify:upstream": "node scripts/verify-upstream.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "20.19.43",
+    "@types/vscode": "1.99.1",
+    "@vscode/vsce": "3.9.2",
+    "esbuild": "0.28.1",
+    "eslint": "10.8.1",
+    "prettier": "3.9.6",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.66.0",
+    "vitest": "4.1.10"
+  }
+}
